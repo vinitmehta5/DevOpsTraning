@@ -1,0 +1,26 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: v20.x
+  pre_build:
+    commands:
+      - echo Installing dependencies...
+      - aws s3 cp cloudformation/roles.yml s3://learning-s3-example-bucket/cloudformation/roles.yml
+      - aws s3 cp cloudformation/lambda-deploy.yml s3://learning-s3-example-bucket/cloudformation/lambda-deploy.yml
+      - cd lambda
+      - npm install
+      - cd ..
+  build:
+    commands:
+      - echo Packaging Lambda function...
+      - cd lambda
+      - zip -r ../lambda.zip .
+      - cd ..
+  post_build:
+    commands:
+      - echo Build completed.
+artifacts:
+  files:
+    - lambda.zip
