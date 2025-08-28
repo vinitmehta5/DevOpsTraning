@@ -1,11 +1,20 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: Main stack for EC2, Lambda, Roles
 
+Parameters:
+  DeploymentBucket:
+    Type: String
+  DeploymentKey:
+    Type: String
+
 Resources:
   IAMRolesStack:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: https://learning-s3-example-bucket.s3.us-east-1.amazonaws.com/cloudformation/roles.yml
+      Parameters:
+          DeploymentBucket: !Ref DeploymentBucket
+          DeploymentKey: !Ref DeploymentKey
   
   LambdaStack:
     Type: AWS::CloudFormation::Stack
