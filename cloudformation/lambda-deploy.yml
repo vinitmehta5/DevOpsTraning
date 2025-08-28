@@ -30,7 +30,7 @@ Resources:
   LambdaFunction:
     Type: AWS::Lambda::Function
     Properties:
-      Handler: lambda/app.handler
+      Handler: app.handler
       Role: !GetAtt LambdaExecutionRole.Arn
       Code:
         S3Bucket: !Ref DeploymentBucket
