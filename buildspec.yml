@@ -7,6 +7,8 @@ phases:
   pre_build:
     commands:
       - echo Installing dependencies...
+      - aws s3 cp cloudformation/roles.yml s3://my-website-files-for-test/cloudformation/roles.yml
+      - aws s3 cp cloudformation/lambda-deploy.yml s3://my-website-files-for-test/cloudformation/lambda-deploy.yml
       - cd lambda
       - npm install
       - cd ..
