@@ -25,6 +25,7 @@ phases:
       - pwd
   post_build:
     commands:
+      - ls -l
       - echo Build completed.
 artifacts:
   files:

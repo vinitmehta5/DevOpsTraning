@@ -97,18 +97,11 @@ Resources:
     Properties:
       Handler: app.handler
       Role: !GetAtt LambdaExecutionRole.Arn
-      # Code:
-      #   S3Bucket: !Ref DeploymentBucket
-      #   S3Key: lambda.zip
-      Runtime: nodejs22.x
       Code:
-        ZipFile: |
-          exports.handler = async (event) => {
-              return {
-                  statusCode: 200,
-                  body: "Hello World!"
-              };
-          };
+        S3Bucket: !Ref DeploymentBucket
+        S3Key: lambda.zip
+      Runtime: nodejs20.x
+      Timeout: 10
 
   DeploymentBucket:
     Type: AWS::S3::Bucket
