@@ -10,14 +10,19 @@ phases:
       - aws s3 cp cloudformation/roles.yml s3://learning-s3-example-bucket/cloudformation/roles.yml
       - aws s3 cp cloudformation/lambda-deploy.yml s3://learning-s3-example-bucket/cloudformation/lambda-deploy.yml
       - cd lambda
+      - echo pwd
       - npm install
       - cd ..
+      - echo pwd
   build:
     commands:
       - echo Packaging Lambda function...
       - cd lambda
+      - echo pwd
       - zip -r ../lambda.zip .
+      - echo pwd
       - cd ..
+      - echo pwd
   post_build:
     commands:
       - echo Build completed.

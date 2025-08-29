@@ -8,19 +8,103 @@ Description: Main stack for EC2, Lambda, Roles
 #     Type: String
 
 Resources:
-  IAMRolesStack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: https://learning-s3-example-bucket.s3.us-east-1.amazonaws.com/cloudformation/roles.yml
-      # Parameters:
-      #     DeploymentBucket: !Ref DeploymentBucket
-      #     DeploymentKey: !Ref DeploymentKey
+  # IAMRolesStack:
+  #   Type: AWS::CloudFormation::Stack
+  #   Properties:
+  #     TemplateURL: https://learning-s3-example-bucket.s3.us-east-1.amazonaws.com/cloudformation/roles.yml
+  #     # Parameters:
+  #     #     DeploymentBucket: !Ref DeploymentBucket
+  #     #     DeploymentKey: !Ref DeploymentKey
   
-  LambdaStack:
-    Type: AWS::CloudFormation::Stack
-    DependsOn: IAMRolesStack
+  # LambdaStack:
+  #   Type: AWS::CloudFormation::Stack
+  #   DependsOn: IAMRolesStack
+  #   Properties:
+  #     TemplateURL: https://learning-s3-example-bucket.s3.us-east-1.amazonaws.com/cloudformation/lambda-deploy.yml
+  CodePipelineServiceRole:
+    Type: AWS::IAM::Role
     Properties:
-      TemplateURL: https://learning-s3-example-bucket.s3.us-east-1.amazonaws.com/cloudformation/lambda-deploy.yml
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codepipeline.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: CodePipelinePermissions
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:*
+                  - codebuild:*
+                  - cloudformation:*
+                  - iam:PassRole
+                  - lambda:*
+                  - ec2:*
+                Resource: "*"
+
+  CodeBuildServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: CodeBuildPermissions
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:*
+                  - cloudformation:*
+                  - lambda:*
+                  - ec2:*
+                  - logs:*
+                Resource: "*"
+
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: LambdaBasicExecution
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: "*"
+
+  LambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: app.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref DeploymentBucket
+        S3Key: lambda.zip
+      Runtime: nodejs20.x
+      Timeout: 10
+
+  DeploymentBucket:
+    Type: AWS::S3::Bucket
 
   EC2Instance:
     Type: AWS::EC2::Instance
